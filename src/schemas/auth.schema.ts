@@ -56,6 +56,8 @@ export interface AuthResponse {
   monstersKilled?: number;
   timePlayed?: number;
   isActive?: boolean;
+  isPremium?: boolean;
+  premiumPurchasedAt?: string | null;
   createdAt: string;
   updatedAt?: string;
 }
