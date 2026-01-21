@@ -9,6 +9,8 @@ import Achievements from './pages/Achievements';
 import Rewards from './pages/Rewards';
 import Leaderboard from './pages/Leaderboard';
 import Notifications from './pages/Notifications';
+import PaymentSuccess from './pages/PaymentSuccess';
+import PaymentCancel from './pages/PaymentCancel';
 
 export default function App() {
   // Monitorear conexión de red
@@ -23,6 +25,10 @@ export default function App() {
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
         <Route path="/change-password" element={<ChangePassword />} />
+        
+        {/* Rutas de pago (públicas) */}
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/payment-cancel" element={<PaymentCancel />} />
         
         {/* Rutas protegidas */}
         <Route element={<ProtectedRoute />}>
