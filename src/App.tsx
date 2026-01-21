@@ -3,6 +3,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { NotificationCenter } from './components/features/notifications/NotificationCenter';
 import { useNetworkStatus } from './hooks/useNetworkStatus';
 import Login from './pages/Login';
+import ChangePassword from './pages/ChangePassword';
 import Dashboard from './pages/Dashboard';
 import Achievements from './pages/Achievements';
 import Rewards from './pages/Rewards';
@@ -21,6 +22,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/change-password" element={<ChangePassword />} />
         
         {/* Rutas protegidas */}
         <Route element={<ProtectedRoute />}>
