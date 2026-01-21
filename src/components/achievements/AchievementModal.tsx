@@ -90,7 +90,12 @@ export default function AchievementModal({ achievement, onClose }: AchievementMo
           {/* Progress */}
           {!achievement.isUnlocked && achievement.maxProgress > 0 && (
             <div>
-              <h3 className="text-white font-bold mb-2">Progreso</h3>
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="text-white font-bold">Progreso</h3>
+                <span className="text-purple-400 font-bold text-lg">
+                  {Math.round((achievement.progress / achievement.maxProgress) * 100)}%
+                </span>
+              </div>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-400">Progreso Actual</span>
@@ -101,7 +106,7 @@ export default function AchievementModal({ achievement, onClose }: AchievementMo
                 <div className="h-3 bg-gray-700 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all"
-                    style={{ width: `${(achievement.progress / achievement.maxProgress) * 100}%` }}
+                    style={{ width: `${Math.min((achievement.progress / achievement.maxProgress) * 100, 100)}%` }}
                   />
                 </div>
               </div>

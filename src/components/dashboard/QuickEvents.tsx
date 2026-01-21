@@ -7,6 +7,7 @@ import EventCard from './EventCard';
 import { useEffect, useState } from 'react';
 import Toast from '../common/Toast';
 import { useQuery } from '@tanstack/react-query';
+import MonsterHuntGame from '../games/MonsterHuntGame';
 
 export default function QuickEvents() {
   const user = useAuthStore((state) => state.user);
@@ -188,29 +189,6 @@ export default function QuickEvents() {
     submitEventMutation.mutate(eventData);
   };
 
-  const events = [
-    {
-      title: 'Matar Monstruo',
-      description: 'Derrota un enemigo y gana recompensas.',
-      action: 'Derrotar Ahora',
-      color: 'red' as const,
-      icon: 'skull',
-      onAction: () => handleEventSubmit('monster_killed', 1),
-      loading: submitEventMutation.isPending,
-      nextAchievement: getNextMonsterAchievement(),
-    },
-    {
-      title: 'Tiempo de Juego',
-      description: 'Registra tu sesión de juego.',
-      action: 'Registrar Tiempo',
-      color: 'blue' as const,
-      icon: 'schedule',
-      onAction: () => handleEventSubmit('time_played', 10),
-      loading: submitEventMutation.isPending,
-      nextAchievement: null, // Por ahora solo monstruos tienen barra de progreso
-    },
-  ];
-
   return (
     <div>
       {/* Toast para logros desbloqueados */}
@@ -221,12 +199,14 @@ export default function QuickEvents() {
         />
       )}
       
-      <h2 className="text-2xl font-bold text-white mb-4">Eventos Rápidos</h2>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {events.map((event) => (
-          <EventCard key={event.title} {...event} />
-        ))}
-      </div>
+      <h2 className="text-2xl font-bold text-white mb-6">Eventos Rápidos</h2>
+      
+      {/* Juego de Caza de Monstruos */}
+      <MonsterHuntGame 
+        onMonsterKilled={(total) => {
+          console.log(`Total de monstruos derrotados: ${total}`);
+        }}
+      />
     </div>
   );
 }

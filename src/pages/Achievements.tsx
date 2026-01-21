@@ -16,6 +16,7 @@ export default function Achievements() {
   const playerId = user?.id;
 
   const [filter, setFilter] = useState<AchievementFilterType>('all');
+  const [levelFilter, setLevelFilter] = useState<number | 'all'>('all'); // Filtro por nivel
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedAchievement, setSelectedAchievement] = useState<AchievementWithProgress | null>(null);
 
@@ -28,27 +29,43 @@ export default function Achievements() {
   const filteredAchievements = useMemo(() => {
     let result = achievements || [];
 
-    // Filtrar por tipo
+    // Primero filtrar por nivel si está seleccionado
+    if (levelFilter !== 'all') {
+      result = result.filter((a) => {
+        const eventType = a.eventType || '';
+        // Extraer el nivel del eventType (ej: LEVEL_2_COMPLETE -> 2)
+        const levelMatch = eventType.match(/LEVEL_(\d+)/);
+        if (levelMatch) {
+          return parseInt(levelMatch[1]) === levelFilter;
+        }
+        // Si no tiene LEVEL_ en el eventType, no pertenece a ningún nivel específico
+        return false;
+      });
+    }
+
+    // Luego filtrar por tipo (desbloqueados/bloqueados/temporales)
     if (filter === 'unlocked') {
-      result = result.filter((a) => a.isUnlocked);
+      // Incluir logros desbloqueados O al 100% de progreso
+      result = result.filter((a) => a.isUnlocked || (a.progress >= a.maxProgress && a.maxProgress > 0));
     } else if (filter === 'locked') {
-      result = result.filter((a) => !a.isUnlocked && a.progress === 0);
+      // Mostrar solo logros que NO estén desbloqueados Y que no estén al 100%
+      result = result.filter((a) => !a.isUnlocked && !(a.progress >= a.maxProgress && a.maxProgress > 0));
     } else if (filter === 'timed') {
       result = result.filter((a) => a.isTimed && !a.isUnlocked);
     }
 
-    // Buscar por nombre o descripción
+    // Finalmente buscar por nombre o descripción
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       result = result.filter(
         (a) =>
-          a.name.toLowerCase().includes(query) ||
-          a.description.toLowerCase().includes(query)
+          (a.name?.toLowerCase() || '').includes(query) ||
+          (a.description?.toLowerCase() || '').includes(query)
       );
     }
 
     return result;
-  }, [achievements, filter, searchQuery]);
+  }, [achievements, filter, levelFilter, searchQuery]);
 
   return (
     <DashboardLayout>
@@ -74,6 +91,46 @@ export default function Achievements() {
         onFilterChange={setFilter}
         onSearch={setSearchQuery}
       />
+
+      {/* Level Filter */}
+      <div className="mb-6 flex gap-2 flex-wrap">
+        <button
+          onClick={() => setLevelFilter('all')}
+          className={`px-4 py-2 rounded-lg font-medium transition-all ${
+            levelFilter === 'all'
+              ? 'bg-purple-600 text-white'
+              : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+          }`}
+        >
+          Todos los Niveles
+        </button>
+        {[1, 2, 3, 4, 5].map((level) => {
+          const levelCount = achievements?.filter((a) => {
+            const eventType = a.eventType || '';
+            const levelMatch = eventType.match(/LEVEL_(\d+)/);
+            return levelMatch && parseInt(levelMatch[1]) === level;
+          }).length || 0;
+          
+          return (
+            <button
+              key={level}
+              onClick={() => setLevelFilter(level)}
+              className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${
+                levelFilter === level
+                  ? 'bg-purple-600 text-white'
+                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+              }`}
+            >
+              Nivel {level}
+              {levelCount > 0 && (
+                <span className="bg-purple-500/30 px-2 py-0.5 rounded-full text-xs">
+                  {levelCount}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
 
       {/* Achievement Grid */}
       <AchievementGrid

@@ -1,12 +1,22 @@
 export interface Achievement {
   id: string;
-  name: string;
-  description: string;
-  xpReward: number;
-  coinReward: number;
-  category: string;
-  difficulty: 'EASY' | 'MEDIUM' | 'HARD' | 'LEGENDARY';
-  icon: string;
+  code: string; // Código único del logro
+  name?: string; // Nombre legacy (opcional)
+  titleKey: string; // Clave de traducción del título
+  descriptionKey: string; // Clave de traducción de la descripción
+  description?: string; // Descripción legacy (opcional)
+  requiredValue: number; // Valor requerido para desbloquear
+  eventType: string; // Tipo de evento (MONSTER_KILLED, etc)
+  isTemporal: boolean;
+  temporalWindowStart: string | null;
+  temporalWindowEnd: string | null;
+  isActive: boolean;
+  rewardPoints: number; // Puntos de recompensa
+  xpReward?: number; // Legacy
+  coinReward?: number; // Legacy
+  category?: string; // Legacy
+  difficulty?: 'EASY' | 'MEDIUM' | 'HARD' | 'LEGENDARY'; // Legacy
+  icon?: string; // Legacy
   createdAt: string;
   updatedAt: string;
 }

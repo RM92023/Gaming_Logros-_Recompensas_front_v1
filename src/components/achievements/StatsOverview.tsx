@@ -5,8 +5,17 @@ interface StatsOverviewProps {
 }
 
 export default function StatsOverview({ achievements = [] }: StatsOverviewProps) {
-  const totalXP = achievements.reduce((sum, a) => sum + (a.isUnlocked ? a.xpReward : 0), 0);
-  const unlockedCount = achievements.filter((a) => a.isUnlocked).length;
+  // Calcular XP ganado de logros desbloqueados o al 100%
+  const totalXP = achievements.reduce((sum, a) => {
+    const isComplete = a.isUnlocked || (a.progress >= a.maxProgress && a.maxProgress > 0);
+    return sum + (isComplete ? (a.xpReward || 0) : 0);
+  }, 0);
+  
+  // Contar logros completados (desbloqueados o al 100%)
+  const unlockedCount = achievements.filter((a) => 
+    a.isUnlocked || (a.progress >= a.maxProgress && a.maxProgress > 0)
+  ).length;
+  
   const completionRate = achievements.length > 0 ? (unlockedCount / achievements.length) * 100 : 0;
 
   const stats = [
