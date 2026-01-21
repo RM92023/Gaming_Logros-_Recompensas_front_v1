@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Crown, Lock } from 'lucide-react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import StatsOverview from '../components/achievements/StatsOverview';
 import OverallProgress from '../components/achievements/OverallProgress';
@@ -7,6 +8,7 @@ import Toolbar from '../components/achievements/Toolbar';
 import AchievementGrid from '../components/achievements/AchievementGrid';
 import AchievementModal from '../components/achievements/AchievementModal';
 import { AchievementDetailModal } from '../components/features/achievements/AchievementDetailModal';
+import PremiumModal from '../components/PremiumModal';
 import { getPlayerAchievements } from '../services/achievement.service';
 import { useAuthStore } from '../store/auth';
 import { AchievementFilterType, AchievementWithProgress } from '../types/achievement.types';
@@ -14,11 +16,13 @@ import { AchievementFilterType, AchievementWithProgress } from '../types/achieve
 export default function Achievements() {
   const user = useAuthStore((s) => s.user);
   const playerId = user?.id;
+  const isPremium = user?.isPremium || false;
 
   const [filter, setFilter] = useState<AchievementFilterType>('all');
   const [levelFilter, setLevelFilter] = useState<number | 'all'>('all'); // Filtro por nivel
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedAchievement, setSelectedAchievement] = useState<AchievementWithProgress | null>(null);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
 
   const { data: achievements, isLoading } = useQuery({
     queryKey: ['achievements', playerId],
@@ -111,19 +115,33 @@ export default function Achievements() {
             return levelMatch && parseInt(levelMatch[1]) === level;
           }).length || 0;
           
+          const isLocked = level >= 3 && !isPremium;
+          
           return (
             <button
               key={level}
-              onClick={() => setLevelFilter(level)}
-              className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${
+              onClick={() => {
+                if (isLocked) {
+                  setShowPremiumModal(true);
+                } else {
+                  setLevelFilter(level);
+                }
+              }}
+              className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 relative ${
                 levelFilter === level
                   ? 'bg-purple-600 text-white'
+                  : isLocked
+                  ? 'bg-gradient-to-r from-yellow-500/20 to-purple-600/20 border border-yellow-500/30 text-gray-300 hover:border-yellow-500/50'
                   : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
               }`}
             >
+              {isLocked && <Lock className="w-4 h-4 text-yellow-400" />}
               Nivel {level}
+              {isLocked && <Crown className="w-4 h-4 text-yellow-400" />}
               {levelCount > 0 && (
-                <span className="bg-purple-500/30 px-2 py-0.5 rounded-full text-xs">
+                <span className={`px-2 py-0.5 rounded-full text-xs ${
+                  isLocked ? 'bg-yellow-500/30' : 'bg-purple-500/30'
+                }`}>
                   {levelCount}
                 </span>
               )}
@@ -150,6 +168,12 @@ export default function Achievements() {
         achievement={selectedAchievement}
         isOpen={!!selectedAchievement}
         onClose={() => setSelectedAchievement(null)}
+      />
+
+      {/* Premium Modal */}
+      <PremiumModal
+        isOpen={showPremiumModal}
+        onClose={() => setShowPremiumModal(false)}
       />
     </DashboardLayout>
   );
