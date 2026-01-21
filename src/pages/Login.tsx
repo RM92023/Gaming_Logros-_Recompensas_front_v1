@@ -6,7 +6,8 @@ import { useAuthStore } from '../store/auth';
 
 export default function Login() {
   const [formData, setFormData] = useState<LoginInput>({
-    username: ''
+    email: '',
+    password: ''
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showRegister, setShowRegister] = useState(false);
@@ -66,23 +67,43 @@ export default function Login() {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Username */}
+            {/* Email */}
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">
-                Nombre de usuario
+              <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+                Correo electrónico
               </label>
               <input
-                type="text"
-                id="username"
-                name="username"
-                value={formData.username}
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
                 onChange={handleChange}
                 className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
-                placeholder="jugador123"
-                autoComplete="username"
+                placeholder="tu@email.com"
+                autoComplete="email"
               />
-              {errors.username && (
-                <p className="mt-1 text-sm text-red-400">{errors.username}</p>
+              {errors.email && (
+                <p className="mt-1 text-sm text-red-400">{errors.email}</p>
+              )}
+            </div>
+
+            {/* Password */}
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+                Contraseña
+              </label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                placeholder="••••••••"
+                autoComplete="current-password"
+              />
+              {errors.password && (
+                <p className="mt-1 text-sm text-red-400">{errors.password}</p>
               )}
             </div>
 
@@ -126,9 +147,8 @@ export default function Login() {
 
 // Register Form Component
 function RegisterForm({ onBackToLogin }: { onBackToLogin: () => void }) {
-  const navigate = useNavigate();
-  const setUser = useAuthStore((state) => state.setUser);
   const registerMutation = useRegister();
+  const [registeredEmail, setRegisteredEmail] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     username: '',
@@ -154,7 +174,11 @@ function RegisterForm({ onBackToLogin }: { onBackToLogin: () => void }) {
       return;
     }
 
-    registerMutation.mutate(formData);
+    registerMutation.mutate(formData, {
+      onSuccess: (data) => {
+        setRegisteredEmail(data.email);
+      }
+    });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -170,6 +194,68 @@ function RegisterForm({ onBackToLogin }: { onBackToLogin: () => void }) {
       });
     }
   };
+
+  // Mostrar mensaje de éxito después del registro
+  if (registeredEmail) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <div className="bg-gray-800 rounded-2xl shadow-2xl p-8 border border-purple-500/20">
+            {/* Success Icon */}
+            <div className="flex justify-center mb-6">
+              <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center">
+                <svg className="w-12 h-12 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+            </div>
+
+            {/* Success Message */}
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-bold text-white mb-3">
+                ¡Registro Exitoso! 🎉
+              </h1>
+              <div className="bg-purple-500/10 border border-purple-500/50 rounded-lg p-4 mb-4">
+                <p className="text-gray-300 mb-2">
+                  Hemos enviado una contraseña temporal a:
+                </p>
+                <p className="text-purple-400 font-semibold text-lg">
+                  {registeredEmail}
+                </p>
+              </div>
+              <p className="text-gray-400 text-sm">
+                Revisa tu correo electrónico (incluyendo la carpeta de spam) para obtener tu contraseña temporal.
+              </p>
+            </div>
+
+            {/* Instructions */}
+            <div className="bg-gray-700/50 rounded-lg p-4 mb-6">
+              <h3 className="text-white font-semibold mb-2 flex items-center">
+                <svg className="w-5 h-5 mr-2 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Próximos pasos:
+              </h3>
+              <ol className="text-gray-300 text-sm space-y-2 ml-7 list-decimal">
+                <li>Revisa tu correo electrónico</li>
+                <li>Copia la contraseña temporal</li>
+                <li>Inicia sesión con tu correo y la contraseña</li>
+                <li>Cambia tu contraseña por una personalizada</li>
+              </ol>
+            </div>
+
+            {/* Go to Login */}
+            <button
+              onClick={onBackToLogin}
+              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 shadow-lg hover:shadow-purple-500/50"
+            >
+              Ir a Iniciar Sesión
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 flex items-center justify-center p-4">
@@ -231,11 +317,11 @@ function RegisterForm({ onBackToLogin }: { onBackToLogin: () => void }) {
                     const errorMessage = (registerMutation.error as any)?.response?.data?.message || 
                                        'Error al crear la cuenta. Intenta nuevamente.';
                     // Traducir mensajes comunes del inglés al español
-                    if (errorMessage === 'Username already exists') {
+                    if (errorMessage === 'El nombre de usuario ya existe') {
                       return 'El nombre de usuario ya existe';
                     }
-                    if (errorMessage === 'Email already exists') {
-                      return 'El correo electrónico ya existe';
+                    if (errorMessage === 'El correo electrónico ya está registrado') {
+                      return 'El correo electrónico ya está registrado';
                     }
                     return errorMessage;
                   })()}
