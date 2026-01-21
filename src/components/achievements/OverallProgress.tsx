@@ -5,8 +5,12 @@ interface OverallProgressProps {
 }
 
 export default function OverallProgress({ achievements = [] }: OverallProgressProps) {
-  const unlocked = achievements.filter((a) => a.isUnlocked).length;
-  const total = achievements.length || 200;
+  // Contar logros completados (desbloqueados o al 100%)
+  const unlocked = achievements.filter((a) => 
+    a.isUnlocked || (a.progress >= a.maxProgress && a.maxProgress > 0)
+  ).length;
+  
+  const total = achievements.length || 5; // Total real de logros disponibles
   const percentage = total > 0 ? (unlocked / total) * 100 : 0;
 
   return (

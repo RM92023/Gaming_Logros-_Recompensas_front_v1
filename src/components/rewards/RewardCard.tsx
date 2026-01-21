@@ -1,4 +1,8 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { RewardWithStatus } from '../../types/reward.types';
+import { claimReward } from '../../services/reward.service';
+import { useAuthStore } from '../../store/auth';
+import { useState } from 'react';
 
 interface RewardCardProps {
   reward: RewardWithStatus;
@@ -9,6 +13,27 @@ interface RewardCardProps {
  * Displays individual reward information with status
  */
 export default function RewardCard({ reward }: RewardCardProps) {
+  const user = useAuthStore((state) => state.user);
+  const queryClient = useQueryClient();
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  const claimMutation = useMutation({
+    mutationFn: () => claimReward(reward.id),
+    onSuccess: () => {
+      setShowSuccess(true);
+      // Invalidar queries para refrescar los datos
+      queryClient.invalidateQueries({ queryKey: ['rewards', 'assigned', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['rewards', 'claimed', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['balance', user?.id] });
+      
+      setTimeout(() => setShowSuccess(false), 3000);
+    },
+    onError: (error: any) => {
+      console.error('Error claiming reward:', error);
+      alert('Error al reclamar la recompensa. Intenta de nuevo.');
+    },
+  });
+
   const getRarityColor = (rewardType: string) => {
     switch (rewardType) {
       case 'coins':
@@ -66,13 +91,31 @@ export default function RewardCard({ reward }: RewardCardProps) {
             Reclamada
           </span>
         </div>
-      ) : (
-        <div className="bg-purple-500/20 border border-purple-500/50 rounded-lg p-3 text-center">
-          <span className="text-purple-400 font-bold text-sm flex items-center justify-center gap-2">
-            <span className="material-symbols-outlined text-lg">schedule</span>
-            Pendiente
+      ) : showSuccess ? (
+        <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-3 text-center animate-pulse">
+          <span className="text-green-400 font-bold text-sm flex items-center justify-center gap-2">
+            <span className="material-symbols-outlined text-lg">celebration</span>
+            ¡Reclamada con éxito!
           </span>
         </div>
+      ) : (
+        <button
+          onClick={() => claimMutation.mutate()}
+          disabled={claimMutation.isPending}
+          className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-gray-600 disabled:to-gray-700 text-white font-bold py-3 px-4 rounded-lg transition-all shadow-lg flex items-center justify-center gap-2"
+        >
+          {claimMutation.isPending ? (
+            <>
+              <span className="material-symbols-outlined animate-spin">refresh</span>
+              Reclamando...
+            </>
+          ) : (
+            <>
+              <span className="material-symbols-outlined">redeem</span>
+              Reclamar Recompensa
+            </>
+          )}
+        </button>
       )}
     </div>
   );

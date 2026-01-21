@@ -64,3 +64,20 @@ export const getPlayerBalance = async (playerId: string): Promise<PlayerBalance>
   const res = await api.get(`${REWARD_BASE}/api/rewards/balance/${playerId}`);
   return res.data;
 };
+
+/**
+ * Reclama una recompensa específica
+ */
+export const claimReward = async (rewardId: string): Promise<Reward> => {
+  const url = `${REWARD_BASE}/api/rewards/${rewardId}/claim`;
+  console.log('[Frontend] Claiming reward with URL:', url);
+  console.log('[Frontend] Reward ID:', rewardId);
+  try {
+    const res = await api.post(url);
+    console.log('[Frontend] Reward claimed successfully:', res.data);
+    return res.data;
+  } catch (error: any) {
+    console.error('[Frontend] Error claiming reward:', error.response?.status, error.response?.data);
+    throw error;
+  }
+};
