@@ -6,21 +6,24 @@ interface AchievementCardProps {
 }
 
 export default function AchievementCard({ achievement, onClick }: AchievementCardProps) {
+  // Verificar si está completado (desbloqueado o al 100%)
+  const isCompleted = achievement.isUnlocked || (achievement.progress >= achievement.maxProgress && achievement.maxProgress > 0);
+  
   const getCardStyle = () => {
-    if (achievement.isUnlocked) {
+    if (isCompleted) {
       return 'border-2 border-yellow-500/50 shadow-lg shadow-yellow-500/20';
     }
     if (achievement.progress > 0) {
       return 'border-2 border-purple-500/50 shadow-lg shadow-purple-500/20';
     }
-    if (achievement.isTimed && !achievement.isUnlocked) {
+    if (achievement.isTimed && !isCompleted) {
       return 'border-2 border-orange-500/50 shadow-lg shadow-orange-500/20 animate-pulse';
     }
     return 'bg-gray-800/40 border-2 border-transparent opacity-60 grayscale';
   };
 
   const getIconColor = () => {
-    if (achievement.isUnlocked) return 'bg-yellow-500/20 text-yellow-400';
+    if (isCompleted) return 'bg-yellow-500/20 text-yellow-400';
     if (achievement.progress > 0) return 'bg-purple-500/20 text-purple-400';
     if (achievement.isTimed) return 'bg-orange-500/20 text-orange-400';
     return 'bg-gray-700/50 text-gray-500';
@@ -42,16 +45,19 @@ export default function AchievementCard({ achievement, onClick }: AchievementCar
             {achievement.icon || 'emoji_events'}
           </span>
         </div>
-        {achievement.isUnlocked && (
+        {isCompleted ? (
           <div className="bg-green-500/20 px-2 py-1 rounded text-green-400 text-xs font-bold">
-            DESBLOQUEADO
+            ✓ COMPLETADO
           </div>
-        )}
-        {achievement.isTimed && !achievement.isUnlocked && (
+        ) : achievement.progress > 0 ? (
+          <div className="bg-purple-500/20 px-2 py-1 rounded text-purple-400 text-xs font-bold">
+            {Math.round(progressPercentage)}%
+          </div>
+        ) : achievement.isTimed ? (
           <div className="bg-orange-500/20 px-2 py-1 rounded text-orange-400 text-xs font-bold">
             TEMPORAL
           </div>
-        )}
+        ) : null}
       </div>
 
       {/* Título y descripción */}
@@ -61,7 +67,7 @@ export default function AchievementCard({ achievement, onClick }: AchievementCar
       </div>
 
       {/* Footer: Progress o Recompensas */}
-      {achievement.progress > 0 && !achievement.isUnlocked ? (
+      {!isCompleted && achievement.progress > 0 ? (
         <div className="mt-auto pt-4 space-y-2">
           <div className="flex justify-between text-sm">
             <span className="text-gray-400">Progreso</span>
@@ -72,8 +78,23 @@ export default function AchievementCard({ achievement, onClick }: AchievementCar
           <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
             <div
               className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all"
-              style={{ width: `${progressPercentage}%` }}
+              style={{ width: `${Math.min(progressPercentage, 100)}%` }}
             />
+          </div>
+        </div>
+      ) : isCompleted ? (
+        <div className="mt-auto pt-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-yellow-400 text-sm">
+              payments
+            </span>
+            <span className="text-white text-sm font-bold">{achievement.coinReward}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-purple-400 text-sm">
+              bolt
+            </span>
+            <span className="text-white text-sm font-bold">{achievement.xpReward} XP</span>
           </div>
         </div>
       ) : (

@@ -31,6 +31,9 @@ export const AchievementDetailModal = ({
 
   if (!isOpen || !achievement) return null;
 
+  // Verificar si está completado
+  const isCompleted = achievement.isUnlocked || (achievement.progress >= achievement.maxProgress && achievement.maxProgress > 0);
+
   return (
     <div 
       className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
@@ -70,18 +73,18 @@ export const AchievementDetailModal = ({
           </p>
 
           {/* Progress Section */}
-          {achievement.progress !== undefined && achievement.progress < 100 && (
+          {!isCompleted && achievement.maxProgress > 0 && (
             <div className="w-full space-y-2 mb-6">
               <div className="flex justify-between text-xs font-bold uppercase tracking-wider">
                 <span className="text-purple-400">Progress</span>
                 <span className="text-white">
-                  {achievement.progress.toFixed(0)}% Complete
+                  {Math.round((achievement.progress / achievement.maxProgress) * 100)}% Complete
                 </span>
               </div>
               <div className="h-3 w-full bg-gray-700 rounded-full overflow-hidden">
                 <div 
                   className="h-full bg-gradient-to-r from-purple-600 to-pink-600 rounded-full transition-all duration-300"
-                  style={{ width: `${achievement.progress}%` }}
+                  style={{ width: `${Math.min((achievement.progress / achievement.maxProgress) * 100, 100)}%` }}
                 />
               </div>
             </div>
@@ -98,11 +101,11 @@ export const AchievementDetailModal = ({
             </div>
             <div className="bg-gray-900 rounded-lg p-3">
               <span className="material-symbols-outlined text-purple-400 text-2xl mb-1 block">
-                {achievement.completed ? 'check_circle' : 'radio_button_unchecked'}
+                {isCompleted ? 'check_circle' : 'radio_button_unchecked'}
               </span>
               <p className="text-xs text-gray-400">Status</p>
               <p className="font-bold text-white">
-                {achievement.completed ? 'Completed' : 'In Progress'}
+                {isCompleted ? 'Completed' : 'In Progress'}
               </p>
             </div>
           </div>
