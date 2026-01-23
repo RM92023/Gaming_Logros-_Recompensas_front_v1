@@ -12,7 +12,7 @@ const navItems: NavItem[] = [
   { path: '/achievements', label: 'Logros', icon: 'emoji_events' },
   { path: '/rewards', label: 'Recompensas', icon: 'redeem' },
   { path: '/leaderboard', label: 'Clasificación', icon: 'leaderboard' },
-  { path: '/notifications', label: 'Notificaciones', icon: 'notifications' },
+  // { path: '/notifications', label: 'Notificaciones', icon: 'notifications' },
 ];
 
 export default function Sidebar() {

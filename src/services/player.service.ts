@@ -5,7 +5,7 @@ const PLAYER_BASE = import.meta.env.VITE_PLAYER_SERVICE_URL || 'http://localhost
 export interface GameEventDto {
   playerId: string;
   eventType: string;
-  metadata?: Record<string, any>;
+  value: number;
 }
 
 export const getPlayerById = async (playerId: string) => {

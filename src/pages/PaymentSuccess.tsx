@@ -35,7 +35,8 @@ const PaymentSuccess: React.FC = () => {
     }, 5000);
 
     return () => clearTimeout(timeout);
-  }, [navigate, user?.id, setUser]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Solo ejecutar al montar el componente
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 flex items-center justify-center p-4">

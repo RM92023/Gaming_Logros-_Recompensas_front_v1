@@ -15,6 +15,8 @@ export const usePlayerDashboard = (playerId?: string) => {
     queryKey: ['player', actualPlayerId],
     queryFn: () => getPlayerById(actualPlayerId!),
     staleTime: 0, // Siempre refrescar datos del jugador
+    refetchOnMount: 'always', // Forzar refetch al montar
+    refetchOnWindowFocus: true, // Refetch al volver al tab
     enabled: !!actualPlayerId,
   });
 
@@ -22,6 +24,8 @@ export const usePlayerDashboard = (playerId?: string) => {
     queryKey: ['achievements', actualPlayerId],
     queryFn: () => getPlayerAchievements(actualPlayerId!),
     staleTime: 0, // Siempre refrescar logros
+    refetchOnMount: 'always', // Forzar refetch al montar
+    refetchOnWindowFocus: true, // Refetch al volver al tab
     enabled: !!actualPlayerId,
   });
 
@@ -29,6 +33,8 @@ export const usePlayerDashboard = (playerId?: string) => {
     queryKey: ['rewards', actualPlayerId],
     queryFn: () => getPlayerRewards(actualPlayerId!),
     staleTime: 0, // Siempre refrescar recompensas
+    refetchOnMount: 'always', // Forzar refetch al montar
+    refetchOnWindowFocus: true, // Refetch al volver al tab
     enabled: !!actualPlayerId,
   });
 
@@ -36,6 +42,8 @@ export const usePlayerDashboard = (playerId?: string) => {
     queryKey: ['balance', actualPlayerId],
     queryFn: () => getPlayerBalance(actualPlayerId!),
     staleTime: 0, // Siempre refrescar balance
+    refetchOnMount: 'always', // Forzar refetch al montar
+    refetchOnWindowFocus: true, // Refetch al volver al tab
     enabled: !!actualPlayerId,
   });
 

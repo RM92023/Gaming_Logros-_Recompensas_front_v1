@@ -28,7 +28,8 @@ export default function Dashboard() {
     };
 
     refreshUserData();
-  }, [user?.id, setUser]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Solo ejecutar al montar el componente
 
   return (
     <DashboardLayout>

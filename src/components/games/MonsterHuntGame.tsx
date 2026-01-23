@@ -302,7 +302,12 @@ export default function MonsterHuntGame({ onMonsterKilled }: MonsterHuntGameProp
       ]);
     },
     onError: (error: any) => {
-      console.error('Error al registrar monstruo:', error);
+      console.error('❌ Error al registrar monstruo:', error);
+      console.error('Error completo:', {
+        message: error?.message,
+        response: error?.response?.data,
+        status: error?.response?.status
+      });
     },
   });
 
@@ -318,13 +323,22 @@ export default function MonsterHuntGame({ onMonsterKilled }: MonsterHuntGameProp
     setMonstersKilled(newKillCount); // Actualizar total global
     setLevelMonstersKilled(newLevelKillCount); // Actualizar nivel actual
     
-    // Registrar evento en el backend (total global)
+    // Registrar evento en el backend (enviar 1 por cada monstruo matado)
     if (user?.id) {
-      submitEventMutation.mutate({
+      console.log('🔥 ENVIANDO EVENTO AL BACKEND:', {
         playerId: user.id,
         eventType: 'monster_killed',
-        metadata: { value: 1 },
+        value: 1,
+        totalLocal: newKillCount
       });
+      
+      submitEventMutation.mutate({
+        playerId: user.id,
+        eventType: 'monster_killed',  // ⚠️ IMPORTANTE: minúsculas con guión bajo
+        value: 1,  // Enviar 1 por cada monstruo
+      });
+    } else {
+      console.error('❌ NO HAY USER ID - No se puede enviar evento');
     }
     
     // Sistema de nivel y experiencia

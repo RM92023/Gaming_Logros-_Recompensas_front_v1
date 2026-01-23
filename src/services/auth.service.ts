@@ -11,7 +11,19 @@ export const authService = {
   // POST /players/login - Login con correo y contraseña
   login: async (data: LoginInput): Promise<AuthResponse> => {
     const response = await api.post('/players/login', data);
-    return response.data;
+    const user = response.data;
+    
+    // Inicializar logros del usuario si es necesario (call and forget)
+    if (user.id) {
+      const ACHIEVEMENT_SERVICE_URL = import.meta.env.VITE_ACHIEVEMENT_SERVICE_URL || 'http://localhost:3002';
+      fetch(`${ACHIEVEMENT_SERVICE_URL}/api/achievements/initialize/${user.id}`, { 
+        method: 'POST' 
+      }).catch(() => {
+        // Silently fail - los logros ya podrían estar inicializados
+      });
+    }
+    
+    return user;
   },
 
   // POST /players/change-password - Cambiar contraseña
